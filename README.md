@@ -4,7 +4,9 @@ Chrome, Edge, Brave and Firefox extension:
 
 - **Right-click any image or video → "Turn into ASCII art"**
 - Toolbar button opens the full studio (photos, videos, webcam, rain)
-- **Animated new-tab wallpaper**: set any photo or video as your New Tab background, with a clock
+- **Interactive new-tab wallpapers**: Water (click for ripples), Butterflies (they flee your cursor),
+  Fireflies (they gather round it), Rain (your cursor is an umbrella), Starfield (click for hyperspace),
+  or any photo or video you make in the studio, with a clock
 - Record seamless loops, save PNG / text. 100% on-device, no data collected
 
 ## Build
@@ -12,7 +14,7 @@ Chrome, Edge, Brave and Firefox extension:
 python3 build.py
 ```
 Makes `build/chrome/` and `build/firefox/` (load these unpacked to test) and store-ready zips
-in `dist/`. Pillow is needed only to draw the icons the first time.
+in `dist/`. Only Python 3 is needed.
 
 - **Chrome / Brave / Edge:** `chrome://extensions` → Developer mode → Load unpacked → `build/chrome`
 - **Firefox:** `about:debugging#/runtime/this-firefox` → Load Temporary Add-on → `build/firefox/manifest.json`
@@ -25,6 +27,7 @@ privacy policy in [PRIVACY.md](PRIVACY.md).
 |---|---|
 | `manifest.json` | Shared manifest; `build.py` adapts it per browser |
 | `background.js` | Right-click menu + toolbar button |
-| `newtab.html`, `newtab.js` | The animated new-tab wallpaper |
+| `newtab.html`, `newtab.js` | The new-tab page: clock, wallpaper picker, liquid-glass controls |
+| `scenes.js` | The five interactive built-in wallpapers |
 | `web/` | Copy of the studio from **ascii-studio-web**; refresh with `python3 sync_web.py ../ascii-studio-web` |
 | `icons/` | Extension icons |

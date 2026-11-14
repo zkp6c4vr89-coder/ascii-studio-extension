@@ -37,7 +37,7 @@ def assemble(target: str) -> Path:
     for name in ("renderer.js", "app.js", "style.css", "wallpaper-store.js", "manifest.webmanifest"):
         shutil.copy(WEB / name, out / name)
     shutil.copy(WEB / "index.html", out / "studio.html")
-    for name in ("background.js", "newtab.html", "newtab.js"):
+    for name in ("background.js", "newtab.html", "newtab.js", "scenes.js"):
         shutil.copy(HERE / name, out / name)
     shutil.copytree(HERE / "icons", out / "icons")
     shutil.copytree(WEB / "brand", out / "brand", ignore=shutil.ignore_patterns("*.py", "logo-1024.png"))

@@ -6,9 +6,13 @@
   <title>New Tab</title>
   <link rel="icon" type="image/png" href="brand/icon-32.png">
   <style>
-    :root { color-scheme: dark; --dim: rgba(244, 243, 248, 0.62); --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, "Segoe UI", Roboto, sans-serif; }
+    :root {
+      color-scheme: dark;
+      --dim: rgba(244, 243, 248, 0.62);
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, "Segoe UI", Roboto, sans-serif;
+    }
     html, body { margin: 0; height: 100%; background: #000; overflow: hidden; color: #f4f3f8; font-family: var(--font); -webkit-font-smoothing: antialiased; }
-    canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+    canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; touch-action: none; }
     .clock {
       position: fixed; left: 50%; top: 42%; transform: translate(-50%, -50%);
       text-align: center; pointer-events: none;
@@ -16,30 +20,104 @@
     }
     .clock .time { font-size: clamp(56px, 10vw, 136px); font-weight: 600; line-height: 1; letter-spacing: -0.035em; font-variant-numeric: tabular-nums; }
     .clock .date { font-size: clamp(15px, 1.5vw, 20px); font-weight: 500; letter-spacing: -0.01em; color: var(--dim); margin-top: 8px; }
-    .bar {
-      position: fixed; right: 14px; bottom: 12px; display: flex; gap: 8px;
-      opacity: 0.35; transition: opacity 0.2s;
-    }
-    .bar:hover { opacity: 1; }
-    .bar a, .bar button {
-      font: 590 13px var(--font); letter-spacing: -0.01em; color: #f4f3f8; text-decoration: none; cursor: pointer;
-      background: rgba(30, 28, 42, 0.55); border: 0; border-radius: 999px; padding: 8px 14px;
-      -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 16px rgba(0, 0, 0, 0.3);
-      transition: transform 100ms ease-out;
-    }
-    .bar a:active, .bar button:active { transform: scale(0.96); }
-    @media (prefers-reduced-transparency: reduce) { .bar a, .bar button { background: #1c1a26; backdrop-filter: none; } }
     .hide-clock .clock { display: none; }
+
+    /* ---- liquid glass ---- */
+    .glass {
+      position: relative; isolation: isolate;
+      color: #f4f3f8;
+      background: rgba(255, 255, 255, 0.08);
+      -webkit-backdrop-filter: blur(12px) saturate(190%) brightness(1.08);
+      backdrop-filter: blur(12px) saturate(190%) brightness(1.08);
+      border: 0;
+      box-shadow:
+        inset 0 1px 0.5px rgba(255, 255, 255, 0.55),
+        inset 0 -1px 0.5px rgba(255, 255, 255, 0.12),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.2),
+        0 8px 24px rgba(0, 0, 0, 0.28), 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    .glass::before {
+      content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+      background: radial-gradient(120% 90% at 30% 0%, rgba(255, 255, 255, 0.22), transparent 55%);
+    }
+    .liquid .glass {
+      -webkit-backdrop-filter: url(#liquid) blur(10px) saturate(190%) brightness(1.08);
+      backdrop-filter: url(#liquid) blur(10px) saturate(190%) brightness(1.08);
+    }
+
+    .bar { position: fixed; right: 16px; bottom: 14px; display: flex; gap: 8px; opacity: 0.55; transition: opacity 0.25s; }
+    .bar:hover, .bar:focus-within { opacity: 1; }
+    .bar a, .bar button {
+      font: 590 13px var(--font); letter-spacing: -0.01em; text-decoration: none; cursor: pointer;
+      border-radius: 999px; padding: 9px 15px;
+      transition: transform 120ms ease-out, background-color 150ms;
+    }
+    .bar a:hover, .bar button:hover { background: rgba(255, 255, 255, 0.14); }
+    .bar a:active, .bar button:active, .tile:active { transform: scale(0.96); }
+
+    .hint {
+      position: fixed; left: 50%; bottom: 18px; transform: translate(-50%, 10px);
+      font: 500 14px var(--font); letter-spacing: -0.01em;
+      padding: 10px 16px; border-radius: 999px; pointer-events: none;
+      opacity: 0; transition: opacity 0.3s, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .hint.show { opacity: 1; transform: translate(-50%, 0); }
+
+    .sheet {
+      position: fixed; right: 16px; bottom: 64px; width: min(360px, calc(100vw - 32px));
+      padding: 14px; border-radius: 26px;
+      transform-origin: 85% 100%;
+      transform: scale(0.92) translateY(8px); opacity: 0; pointer-events: none;
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s;
+      background: rgba(20, 18, 30, 0.45);
+    }
+    .sheet[open] { transform: none; opacity: 1; pointer-events: auto; }
+    .sheet header { display: flex; align-items: center; justify-content: space-between; margin: 2px 4px 10px; }
+    .sheet h2 { margin: 0; font: 650 17px var(--font); letter-spacing: -0.02em; }
+    .sheet .x { border-radius: 999px; width: 30px; height: 30px; font-size: 15px; cursor: pointer; padding: 0; }
+    .tiles { display: grid; gap: 8px; }
+    .tile {
+      display: grid; gap: 2px; text-align: left; cursor: pointer;
+      padding: 11px 14px; border-radius: 16px;
+      font-family: var(--font);
+      transition: transform 120ms ease-out, background-color 150ms;
+    }
+    .tile strong { font: 600 15px var(--font); letter-spacing: -0.01em; }
+    .tile span { font-size: 12.5px; color: var(--dim); }
+    .tile.on { background: rgba(255, 106, 138, 0.32); }
+    .sheet .make { display: block; margin: 10px 4px 2px; font: 500 13px var(--font); color: var(--dim); text-decoration: none; }
+    .sheet .make:hover { color: #fff; }
+
+    @media (prefers-reduced-motion: reduce) { * { transition-duration: 1ms !important; } }
+    @media (prefers-reduced-transparency: reduce) {
+      .glass, .liquid .glass { background: #1c1a26; -webkit-backdrop-filter: none; backdrop-filter: none; }
+    }
   </style>
 </head>
 <body>
+  <!-- Liquid glass: bends what's behind the glass (Chromium only; others get frosted glass) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <filter id="liquid" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.01" numOctaves="2" seed="11" result="noise"/>
+      <feGaussianBlur in="noise" stdDeviation="2.5" result="map"/>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="36" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+
   <canvas id="out"></canvas>
   <div class="clock"><div class="time" id="time"></div><div class="date" id="date"></div></div>
+  <div class="hint glass" id="hint"></div>
+
+  <section class="sheet glass" id="sheet" aria-label="Choose a wallpaper">
+    <header><h2>Wallpapers</h2><button class="x glass" id="sheet-close" aria-label="Close">✕</button></header>
+    <div class="tiles" id="tiles"></div>
+    <a class="make" href="studio.html">Make your own from a photo or video →</a>
+  </section>
+
   <div class="bar">
-    <button id="toggle-clock" title="Show or hide the clock">Clock</button>
-    <button id="pause">Pause</button>
-    <a href="studio.html" title="Change your wallpaper in ASCII Studio">Change wallpaper</a>
+    <button class="glass" id="wallpapers">Wallpapers</button>
+    <button class="glass" id="toggle-clock" title="Show or hide the clock">Clock</button>
+    <button class="glass" id="pause">Pause</button>
   </div>
   <script type="module" src="newtab.js"></script>
 </body>

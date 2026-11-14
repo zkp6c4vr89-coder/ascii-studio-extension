@@ -39,9 +39,9 @@ ASCII Studio turns pictures into art made only of letters, numbers and symbols.
 **Category:** Photos (Chrome) / Photos, Music & Videos (Firefox)
 
 **New Tab page:** the extension replaces the New Tab page with the animated ASCII wallpaper
-(character rain until the user picks a picture). Both stores allow this, but it **must be
+(the interactive Water scene until the user picks another). Both stores allow this, but it **must be
 stated clearly in the description**. Add this line to the full description:
-• Makes your New Tab page an animated ASCII wallpaper with a clock (choose any photo or video)
+• Makes your New Tab page an interactive ASCII wallpaper with a clock: water that ripples when you click, butterflies that flee your cursor, fireflies, rain and a starfield, or any photo or video
 
 Chrome/Brave show a "Keep it or change back?" prompt the first time a new tab opens; that's normal.
 If you'd rather the store version not touch new tabs, delete the `chrome_url_overrides` line
