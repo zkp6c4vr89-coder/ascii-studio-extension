@@ -34,10 +34,10 @@ def assemble(target: str) -> Path:
     out = HERE / "build" / target
     shutil.rmtree(out, ignore_errors=True)
     out.mkdir(parents=True)
-    for name in ("renderer.js", "app.js", "style.css", "wallpaper-store.js", "manifest.webmanifest"):
+    for name in ("renderer.js", "app.js", "style.css", "wallpaper-store.js", "manifest.webmanifest", "scenes.js"):
         shutil.copy(WEB / name, out / name)
     shutil.copy(WEB / "index.html", out / "studio.html")
-    for name in ("background.js", "newtab.html", "newtab.js", "scenes.js"):
+    for name in ("background.js", "newtab.html", "newtab.js"):
         shutil.copy(HERE / name, out / name)
     shutil.copytree(HERE / "icons", out / "icons")
     shutil.copytree(WEB / "brand", out / "brand", ignore=shutil.ignore_patterns("*.py", "logo-1024.png"))

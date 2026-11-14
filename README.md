@@ -28,6 +28,5 @@ privacy policy in [PRIVACY.md](PRIVACY.md).
 | `manifest.json` | Shared manifest; `build.py` adapts it per browser |
 | `background.js` | Right-click menu + toolbar button |
 | `newtab.html`, `newtab.js` | The new-tab page: clock, wallpaper picker, liquid-glass controls |
-| `scenes.js` | The five interactive built-in wallpapers |
-| `web/` | Copy of the studio from **ascii-studio-web**; refresh with `python3 sync_web.py ../ascii-studio-web` |
+| `web/` | Copy of the studio and the five interactive wallpapers (`scenes.js`) from **ascii-studio-web**; refresh with `python3 sync_web.py ../ascii-studio-web` |
 | `icons/` | Extension icons |
