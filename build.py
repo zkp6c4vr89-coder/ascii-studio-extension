@@ -45,11 +45,15 @@ def assemble(target: str) -> Path:
     manifest = json.loads((HERE / "manifest.json").read_text())
     if target == "firefox":
         manifest["background"] = {"scripts": ["background.js"]}   # Firefox uses an event page
-        manifest["browser_specific_settings"] = {"gecko": {
-            "id": FIREFOX_ID,
-            "strict_min_version": "140.0",
-            "data_collection_permissions": {"required": ["none"]},  # we collect nothing
-        }}
+        manifest["browser_specific_settings"] = {
+            "gecko": {
+                "id": FIREFOX_ID,
+                "strict_min_version": "140.0",
+                "data_collection_permissions": {"required": ["none"]},  # we collect nothing
+            },
+            # Firefox for Android only understands data_collection_permissions from 142 on
+            "gecko_android": {"strict_min_version": "142.0"},
+        }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2))
     return out
 
