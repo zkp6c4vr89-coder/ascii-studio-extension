@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "ASCII Studio",
   "short_name": "ASCII Studio",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Turn any image, video or your webcam into colourful ASCII art, and make it your animated new-tab wallpaper.",
   "icons": {
     "16": "icons/16.png",

@@ -4,26 +4,32 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>New Tab</title>
+  <link rel="icon" type="image/png" href="brand/icon-32.png">
   <style>
-    :root { color-scheme: dark; --dim: rgba(232, 232, 238, 0.55); --mono: Menlo, "SF Mono", Consolas, monospace; }
-    html, body { margin: 0; height: 100%; background: #000; overflow: hidden; color: #e8e8ee; font-family: var(--mono); }
+    :root { color-scheme: dark; --dim: rgba(244, 243, 248, 0.62); --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, "Segoe UI", Roboto, sans-serif; }
+    html, body { margin: 0; height: 100%; background: #000; overflow: hidden; color: #f4f3f8; font-family: var(--font); -webkit-font-smoothing: antialiased; }
     canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
     .clock {
       position: fixed; left: 50%; top: 42%; transform: translate(-50%, -50%);
       text-align: center; pointer-events: none;
       text-shadow: 0 0 24px #000, 0 0 8px #000;
     }
-    .clock .time { font-size: clamp(48px, 9vw, 128px); font-weight: 600; letter-spacing: 0.02em; }
-    .clock .date { font-size: clamp(13px, 1.4vw, 18px); color: var(--dim); margin-top: 4px; }
+    .clock .time { font-size: clamp(56px, 10vw, 136px); font-weight: 600; line-height: 1; letter-spacing: -0.035em; font-variant-numeric: tabular-nums; }
+    .clock .date { font-size: clamp(15px, 1.5vw, 20px); font-weight: 500; letter-spacing: -0.01em; color: var(--dim); margin-top: 8px; }
     .bar {
       position: fixed; right: 14px; bottom: 12px; display: flex; gap: 8px;
       opacity: 0.35; transition: opacity 0.2s;
     }
     .bar:hover { opacity: 1; }
     .bar a, .bar button {
-      font: 12px var(--mono); color: #e8e8ee; text-decoration: none; cursor: pointer;
-      background: rgba(20, 20, 25, 0.8); border: 1px solid #26262e; border-radius: 8px; padding: 6px 10px;
+      font: 590 13px var(--font); letter-spacing: -0.01em; color: #f4f3f8; text-decoration: none; cursor: pointer;
+      background: rgba(30, 28, 42, 0.55); border: 0; border-radius: 999px; padding: 8px 14px;
+      -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 16px rgba(0, 0, 0, 0.3);
+      transition: transform 100ms ease-out;
     }
+    .bar a:active, .bar button:active { transform: scale(0.96); }
+    @media (prefers-reduced-transparency: reduce) { .bar a, .bar button { background: #1c1a26; backdrop-filter: none; } }
     .hide-clock .clock { display: none; }
   </style>
 </head>
