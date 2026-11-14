@@ -86,7 +86,7 @@ const tiles = $("tiles");
 const addTile = (id, name, desc) => {
   const b = Object.assign(document.createElement("button"), { className: "tile glass" });
   b.dataset.id = id;
-  b.innerHTML = `<strong></strong><span></span>`;
+  b.append(document.createElement("strong"), document.createElement("span"));
   b.querySelector("strong").textContent = name;
   b.querySelector("span").textContent = desc;
   b.onclick = () => { show(id); };
