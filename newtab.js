@@ -81,8 +81,9 @@ function applyClock() {
   root.setProperty("--clock-font", FONTS[clockOpts.font] || FONTS.modern);
   root.setProperty("--clock-weight", clockOpts.weight);
   root.setProperty("--clock-scale", clockOpts.size);
-  root.setProperty("--clock-color", clockOpts.color);
-  c.className = `clock pos-${clockOpts.position}${clockOpts.panel ? " panel glass" : ""}`;
+  const rainbow = clockOpts.color === "rainbow";
+  root.setProperty("--clock-color", rainbow ? "#f4f3f8" : clockOpts.color);
+  c.className = `clock pos-${clockOpts.position}${clockOpts.panel ? " panel glass" : ""}${rainbow ? " rainbow" : ""}`;
   store.set("ntp-clock", JSON.stringify(clockOpts));
   clock();
 }
@@ -189,13 +190,13 @@ function seg(options, value, onchange) {
 }
 function swatches(colors, value, onchange) {
   const w = el("div", { className: "swatches" });
-  const custom = el("input", { type: "color", title: "Any colour you like", value });
+  const custom = el("input", { type: "color", title: "Any colour you like", value: /^#[0-9a-f]{6}$/i.test(value) ? value : "#ffffff" });
   const mark = (v) => w.querySelectorAll(".sw").forEach((s) => s.classList.toggle("on", s.dataset.v.toLowerCase() === String(v).toLowerCase()));
   for (const [v, name] of colors) {
     const b = el("button", { className: "sw", title: name, ariaLabel: name });
     b.dataset.v = v;
-    b.style.background = v;
-    b.onclick = () => { mark(v); custom.value = v; onchange(v); };
+    b.style.background = v === "rainbow" ? RAINBOW_CSS : v;
+    b.onclick = () => { mark(v); if (v !== "rainbow") custom.value = v; onchange(v); };
     w.append(b);
   }
   custom.oninput = () => { mark(custom.value); onchange(custom.value); };
@@ -205,10 +206,16 @@ function swatches(colors, value, onchange) {
 }
 
 // ================================================================ Customise: scene options
-const WATER_COLORS = [["#1fa6ff", "Ocean"], ["#18d6c3", "Teal"], ["#3ee07a", "Lagoon"], ["#ff6fae", "Rose"],
-  ["#ff7a2f", "Lava"], ["#9b7bff", "Violet"], ["#dfe7ff", "Moonlight"]];
-const RAIN_COLORS = [["#39e07a", "Matrix"], ["#3fd6ff", "Cyan"], ["#ffb347", "Amber"], ["#ff6fae", "Pink"],
-  ["#a98bff", "Violet"], ["#e8ecff", "White"]];
+const WATER_COLORS = [["#1fa6ff", "Ocean"], ["#2f5bff", "Deep sea"], ["#18d6c3", "Teal"], ["#3ee07a", "Lagoon"],
+  ["#b6f03c", "Lime"], ["#ffd23f", "Gold"], ["#ff7a2f", "Lava"], ["#ff5f5f", "Coral"], ["#ff6fae", "Rose"],
+  ["#e44bff", "Magenta"], ["#9b7bff", "Violet"], ["#c9b6ff", "Lilac"], ["#dfe7ff", "Moonlight"], ["rainbow", "Rainbow"]];
+const RAIN_COLORS = [["#39e07a", "Matrix"], ["#9dff5a", "Lime"], ["#3fd6ff", "Cyan"], ["#2f8bff", "Blue"],
+  ["#7b6bff", "Indigo"], ["#a98bff", "Violet"], ["#e44bff", "Magenta"], ["#ff6fae", "Pink"], ["#ff5f5f", "Red"],
+  ["#ff8a3d", "Orange"], ["#ffb347", "Amber"], ["#ffe66b", "Lemon"], ["#e8ecff", "White"], ["rainbow", "Rainbow"]];
+const CLOCK_COLORS = [["#f4f3f8", "White"], ["#fff1d6", "Cream"], ["#ffd27a", "Gold"], ["#ffb38a", "Peach"],
+  ["#ff8fb3", "Pink"], ["#ff5c5c", "Red"], ["#c3a6ff", "Lilac"], ["#9b7bff", "Violet"], ["#8fe3ff", "Ice"],
+  ["#5ab8ff", "Sky"], ["#9dff9a", "Mint"], ["#c6ff6b", "Lime"], ["#9a9aa5", "Grey"], ["#1a1a1a", "Ink"], ["rainbow", "Rainbow"]];
+const RAINBOW_CSS = "conic-gradient(from 90deg, #ff5f5f, #ffd23f, #3ee07a, #3fd6ff, #9b7bff, #ff6fae, #ff5f5f)";
 
 function setSceneOpt(id, patch) {
   sceneOpts[id] = { ...sceneOpts[id], ...patch };
@@ -252,8 +259,7 @@ function buildClockOptions() {
     opt("Font", seg([["modern", "Modern"], ["serif", "Serif"], ["mono", "Mono"], ["rounded", "Rounded"], ["typewriter", "Typewriter"], ["ascii", "ASCII"]], o.font, (v) => setClock({ font: v }))),
     opt("Weight", seg([[300, "Light"], [600, "Regular"], [800, "Bold"]], o.weight, (v) => setClock({ weight: v }))),
     opt("Size", slider(0.5, 2, 0.05, o.size, (v) => `${Math.round(v * 100)}%`, (v) => setClock({ size: v }))),
-    opt("Colour", swatches([["#f4f3f8", "White"], ["#ffd27a", "Gold"], ["#ff8fb3", "Pink"], ["#8fe3ff", "Ice"],
-      ["#9dff9a", "Mint"], ["#c3a6ff", "Lilac"], ["#1a1a1a", "Ink"]], o.color, (v) => setClock({ color: v }))),
+    opt("Colour", swatches(CLOCK_COLORS, o.color, (v) => setClock({ color: v }))),
     opt("Hours", seg([["auto", "Automatic"], ["12", "12-hour"], ["24", "24-hour"]], o.hours, (v) => setClock({ hours: v }))),
     opt("Show seconds", toggle(o.seconds, (v) => setClock({ seconds: v })), true),
     opt("Date", seg([["long", "Long"], ["short", "Short"], ["numeric", "Numbers"], ["hidden", "Hidden"]], o.date, (v) => setClock({ date: v }))),
