@@ -2,7 +2,8 @@
 // picture from the studio, with a clock. Everything you pick is remembered in localStorage.
 import { AsciiRenderer } from "./renderer.js";
 import { loadWallpaper } from "./wallpaper-store.js";
-import { Grid, SCENES, WATER_DEFAULTS, RAIN_DEFAULTS } from "./scenes.js";
+import { Grid, SCENES } from "./scenes.js";
+import { Clock, CLOCK_DEFAULTS, el, sceneControls, clockControls } from "./customise.js";
 
 const $ = (id) => document.getElementById(id);
 // Only Chromium can bend the backdrop through an SVG filter (true liquid glass).
@@ -20,77 +21,8 @@ const store = {
 };
 
 // ================================================================ clock
-const FONTS = {
-  modern: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, "Segoe UI", Roboto, sans-serif',
-  serif: '"New York", ui-serif, "Iowan Old Style", Georgia, "Times New Roman", serif',
-  mono: 'ui-monospace, "SF Mono", Menlo, Consolas, monospace',
-  rounded: 'ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", "Nunito", system-ui, sans-serif',
-  typewriter: '"American Typewriter", "Courier New", Courier, monospace',
-  ascii: 'ui-monospace, "SF Mono", Menlo, Consolas, monospace',
-};
-const CLOCK_DEFAULTS = {
-  font: "modern", weight: 600, size: 1, color: "#f4f3f8",
-  hours: "auto", seconds: false, date: "long", position: "center", panel: false,
-};
-let clockOpts = store.json("ntp-clock", CLOCK_DEFAULTS);
-
-// big digits drawn with "#" for the ASCII font (3 wide, 5 tall)
-const GLYPHS = {
-  0: ["###", "# #", "# #", "# #", "###"], 1: [" # ", "## ", " # ", " # ", "###"],
-  2: ["###", "  #", "###", "#  ", "###"], 3: ["###", "  #", "###", "  #", "###"],
-  4: ["# #", "# #", "###", "  #", "  #"], 5: ["###", "#  ", "###", "  #", "###"],
-  6: ["###", "#  ", "###", "# #", "###"], 7: ["###", "  #", "  #", "  #", "  #"],
-  8: ["###", "# #", "###", "# #", "###"], 9: ["###", "# #", "###", "  #", "###"],
-  ":": [" ", "#", " ", "#", " "],
-};
-const asciiDigits = (text) =>
-  [0, 1, 2, 3, 4].map((row) => [...text].map((ch) => (GLYPHS[ch] || ["   "])[row]).join(" ")).join("\n");
-
-const localeUses12h = (() => {
-  try { return !!new Intl.DateTimeFormat([], { hour: "numeric" }).resolvedOptions().hour12; } catch { return false; }
-})();
-
-function clock() {
-  const now = new Date();
-  const use12 = clockOpts.hours === "12" || (clockOpts.hours === "auto" && localeUses12h);
-  let h = now.getHours();
-  const ampm = use12 ? (h >= 12 ? "PM" : "AM") : "";
-  if (use12) h = h % 12 || 12;
-  const pad = (n) => String(n).padStart(2, "0");
-  const text = `${use12 ? h : pad(h)}:${pad(now.getMinutes())}${clockOpts.seconds ? ":" + pad(now.getSeconds()) : ""}`;
-
-  const t = $("time");
-  if (clockOpts.font === "ascii") {
-    t.replaceChildren(Object.assign(document.createElement("pre"), { textContent: asciiDigits(text) }));
-  } else {
-    t.replaceChildren(document.createTextNode(text));
-  }
-  if (ampm) t.append(Object.assign(document.createElement("span"), { className: "ampm", textContent: ampm }));
-
-  const dateFormats = {
-    long: { weekday: "long", day: "numeric", month: "long" },
-    short: { weekday: "short", day: "numeric", month: "short" },
-    numeric: { year: "numeric", month: "2-digit", day: "2-digit" },
-  };
-  $("date").hidden = clockOpts.date === "hidden";
-  if (clockOpts.date !== "hidden") $("date").textContent = now.toLocaleDateString([], dateFormats[clockOpts.date] || dateFormats.long);
-}
-
-function applyClock() {
-  const c = $("clock"), root = document.documentElement.style;
-  root.setProperty("--clock-font", FONTS[clockOpts.font] || FONTS.modern);
-  root.setProperty("--clock-weight", clockOpts.weight);
-  root.setProperty("--clock-scale", clockOpts.size);
-  const rainbow = clockOpts.color === "rainbow";
-  root.setProperty("--clock-color", rainbow ? "#f4f3f8" : clockOpts.color);
-  c.className = `clock pos-${clockOpts.position}${clockOpts.panel ? " panel glass" : ""}${rainbow ? " rainbow" : ""}`;
-  store.set("ntp-clock", JSON.stringify(clockOpts));
-  clock();
-}
-function setClock(patch) { Object.assign(clockOpts, patch); applyClock(); }
-
-applyClock();
-setInterval(clock, 1000);
+const clock = new Clock($("clock"), $("time"), $("date"), store.json("ntp-clock", CLOCK_DEFAULTS));
+const saveClock = (opts) => store.set("ntp-clock", JSON.stringify(opts));
 document.body.classList.toggle("hide-clock", store.get("ntp-hide-clock") === "1");
 function showClock(on) {
   document.body.classList.toggle("hide-clock", !on);
@@ -150,125 +82,21 @@ function hint(text) {
   if (text) hintTimer = setTimeout(() => $("hint").classList.remove("show"), 5000);
 }
 
-// ================================================================ little control builders
-function el(tag, props = {}, ...kids) {
-  const e = Object.assign(document.createElement(tag), props);
-  e.append(...kids);
-  return e;
-}
-const opt = (label, control, inline = false) =>
-  el("div", { className: inline ? "opt inline" : "opt" }, el("span", { className: "opt-label", textContent: label }), control);
-
-function toggle(value, onchange, id) {
-  const i = el("input", { type: "checkbox", className: "switch", checked: !!value });
-  if (id) i.id = id;
-  i.onchange = () => onchange(i.checked);
-  return i;
-}
-function slider(min, max, step, value, fmt, oninput) {
-  const i = el("input", { type: "range", min, max, step, value });
-  const out = el("output");
-  const sync = () => {
-    out.textContent = fmt(+i.value);
-    i.style.setProperty("--p", `${((i.value - min) / (max - min)) * 100}%`);
-  };
-  i.oninput = () => { sync(); oninput(+i.value); };
-  sync();
-  return el("div", { className: "slider" }, i, out);
-}
-function seg(options, value, onchange) {
-  const w = el("div", { className: "seg" });
-  for (const [v, label] of options) {
-    const b = el("button", { textContent: label, className: String(v) === String(value) ? "on" : "" });
-    b.onclick = () => {
-      w.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
-      onchange(v);
-    };
-    w.append(b);
-  }
-  return w;
-}
-function swatches(colors, value, onchange) {
-  const w = el("div", { className: "swatches" });
-  const custom = el("input", { type: "color", title: "Any colour you like", value: /^#[0-9a-f]{6}$/i.test(value) ? value : "#ffffff" });
-  const mark = (v) => w.querySelectorAll(".sw").forEach((s) => s.classList.toggle("on", s.dataset.v.toLowerCase() === String(v).toLowerCase()));
-  for (const [v, name] of colors) {
-    const b = el("button", { className: "sw", title: name, ariaLabel: name });
-    b.dataset.v = v;
-    b.style.background = v === "rainbow" ? RAINBOW_CSS : v;
-    b.onclick = () => { mark(v); if (v !== "rainbow") custom.value = v; onchange(v); };
-    w.append(b);
-  }
-  custom.oninput = () => { mark(custom.value); onchange(custom.value); };
-  w.append(custom);
-  mark(value);
-  return w;
-}
-
-// ================================================================ Customise: scene options
-const WATER_COLORS = [["#1fa6ff", "Ocean"], ["#2f5bff", "Deep sea"], ["#18d6c3", "Teal"], ["#3ee07a", "Lagoon"],
-  ["#b6f03c", "Lime"], ["#ffd23f", "Gold"], ["#ff7a2f", "Lava"], ["#ff5f5f", "Coral"], ["#ff6fae", "Rose"],
-  ["#e44bff", "Magenta"], ["#9b7bff", "Violet"], ["#c9b6ff", "Lilac"], ["#dfe7ff", "Moonlight"], ["rainbow", "Rainbow"]];
-const RAIN_COLORS = [["#39e07a", "Matrix"], ["#9dff5a", "Lime"], ["#3fd6ff", "Cyan"], ["#2f8bff", "Blue"],
-  ["#7b6bff", "Indigo"], ["#a98bff", "Violet"], ["#e44bff", "Magenta"], ["#ff6fae", "Pink"], ["#ff5f5f", "Red"],
-  ["#ff8a3d", "Orange"], ["#ffb347", "Amber"], ["#ffe66b", "Lemon"], ["#e8ecff", "White"], ["rainbow", "Rainbow"]];
-const CLOCK_COLORS = [["#f4f3f8", "White"], ["#fff1d6", "Cream"], ["#ffd27a", "Gold"], ["#ffb38a", "Peach"],
-  ["#ff8fb3", "Pink"], ["#ff5c5c", "Red"], ["#c3a6ff", "Lilac"], ["#9b7bff", "Violet"], ["#8fe3ff", "Ice"],
-  ["#5ab8ff", "Sky"], ["#9dff9a", "Mint"], ["#c6ff6b", "Lime"], ["#9a9aa5", "Grey"], ["#1a1a1a", "Ink"], ["rainbow", "Rainbow"]];
-const RAINBOW_CSS = "conic-gradient(from 90deg, #ff5f5f, #ffd23f, #3ee07a, #3fd6ff, #9b7bff, #ff6fae, #ff5f5f)";
-
+// ================================================================ Customise tab
 function setSceneOpt(id, patch) {
   sceneOpts[id] = { ...sceneOpts[id], ...patch };
   store.set("ntp-scene-opts", JSON.stringify(sceneOpts));
   if (sceneId === id && scene && scene.setOptions) scene.setOptions(patch);
 }
-
 function buildSceneOptions(choice) {
-  const box = $("scene-opts");
-  const name = choice === "custom" ? "Your picture" : (SCENES[choice] || SCENES.water).name;
-  $("scene-title").textContent = name;
-  box.replaceChildren();
-  if (choice === "water") {
-    const o = { ...WATER_DEFAULTS, ...sceneOpts.water };
-    box.append(
-      opt("Ripple colour", swatches(WATER_COLORS, o.color, (v) => setSceneOpt("water", { color: v }))),
-      opt("Ripple size", slider(0.5, 2, 0.1, o.size, (v) => `${Math.round(v * 100)}%`, (v) => setSceneOpt("water", { size: v }))),
-      opt("Raindrops on their own", toggle(o.raindrops, (v) => setSceneOpt("water", { raindrops: v })), true),
-    );
-  } else if (choice === "rain") {
-    const o = { ...RAIN_DEFAULTS, ...sceneOpts.rain };
-    const strength = opt("Flow strength", slider(0.4, 2, 0.1, o.strength, (v) => `${Math.round(v * 100)}%`, (v) => setSceneOpt("rain", { strength: v })));
-    strength.hidden = !o.fluid;
-    box.append(
-      opt("Umbrella around the cursor", toggle(o.umbrella, (v) => setSceneOpt("rain", { umbrella: v })), true),
-      opt("Rain flows around the cursor", toggle(o.fluid, (v) => { setSceneOpt("rain", { fluid: v }); strength.hidden = !v; }), true),
-      strength,
-      opt("Rain colour", swatches(RAIN_COLORS, o.color, (v) => setSceneOpt("rain", { color: v }))),
-    );
-  } else {
-    box.append(el("p", { className: "note", textContent: "No extra options for this one yet. Try Water or Rain!" }));
-  }
+  $("scene-title").textContent = choice === "custom" ? "Your picture" : (SCENES[choice] || SCENES.water).name;
+  $("scene-opts").replaceChildren(...sceneControls(choice, sceneOpts[choice], (patch) => setSceneOpt(choice, patch)));
 }
-
-// ================================================================ Customise: clock options
 function buildClockOptions() {
-  const box = $("clock-opts");
-  const o = clockOpts;
-  box.replaceChildren(
-    opt("Show the clock", toggle(store.get("ntp-hide-clock") !== "1", (v) => showClock(v), "show-clock"), true),
-    opt("Font", seg([["modern", "Modern"], ["serif", "Serif"], ["mono", "Mono"], ["rounded", "Rounded"], ["typewriter", "Typewriter"], ["ascii", "ASCII"]], o.font, (v) => setClock({ font: v }))),
-    opt("Weight", seg([[300, "Light"], [600, "Regular"], [800, "Bold"]], o.weight, (v) => setClock({ weight: v }))),
-    opt("Size", slider(0.5, 2, 0.05, o.size, (v) => `${Math.round(v * 100)}%`, (v) => setClock({ size: v }))),
-    opt("Colour", swatches(CLOCK_COLORS, o.color, (v) => setClock({ color: v }))),
-    opt("Hours", seg([["auto", "Automatic"], ["12", "12-hour"], ["24", "24-hour"]], o.hours, (v) => setClock({ hours: v }))),
-    opt("Show seconds", toggle(o.seconds, (v) => setClock({ seconds: v })), true),
-    opt("Date", seg([["long", "Long"], ["short", "Short"], ["numeric", "Numbers"], ["hidden", "Hidden"]], o.date, (v) => setClock({ date: v }))),
-    opt("Position", seg([["center", "Centre"], ["top-left", "Top left"], ["bottom-left", "Bottom left"]], o.position, (v) => setClock({ position: v }))),
-    opt("Glass panel behind it", toggle(o.panel, (v) => setClock({ panel: v })), true),
-  );
+  const shown = store.get("ntp-hide-clock") !== "1";
   const reset = el("button", { className: "reset glass", textContent: "Reset clock to default" });
-  reset.onclick = () => { clockOpts = { ...CLOCK_DEFAULTS }; applyClock(); buildClockOptions(); };
-  box.append(reset);
+  reset.onclick = () => { clock.reset(); saveClock(clock.opts); buildClockOptions(); };
+  $("clock-opts").replaceChildren(...clockControls(clock, saveClock, [shown, showClock]), reset);
 }
 buildClockOptions();
 
