@@ -7,6 +7,9 @@ Chrome, Edge, Brave and Firefox extension:
 - **Interactive new-tab wallpapers**: Water (click for ripples), Butterflies (they flee your cursor),
   Fireflies (they gather round it), Rain (your cursor is an umbrella), Starfield (click for hyperspace),
   or any photo or video you make in the studio, with a clock
+- **Customise tab** on the new tab: ripple colour & size, rain colour, umbrella on/off and
+  fluid rain that flows around your cursor; clock font (incl. ASCII digits), weight, size,
+  colour, 12/24-hour, seconds, date style, position and a liquid-glass panel
 - Record seamless loops, save PNG / text. 100% on-device, no data collected
 
 ## Build
