@@ -27,14 +27,32 @@ zip *is* the source (no minifying or bundling), so just say so.
 Turn any image, video or your webcam into colourful ASCII art. Right-click → Turn into ASCII art. 100% on-device.
 
 **Full description:**
-ASCII Studio turns pictures into art made only of letters, numbers and symbols.
+ASCII Studio turns pictures into art made only of letters, numbers and symbols, in full colour.
 
 • Right-click any image or video on a website → "Turn into ASCII art"
 • Or open your own photos and videos, or switch on your webcam
 • Three looks: full colour, Matrix green, classic mono
-• Tune character size, contrast, edge strokes, glow and shimmer
-• Save as PNG (up to 4K or your exact screen size for wallpapers), record video, or copy as plain text
-• Everything runs on your device with your graphics card. Nothing is uploaded, ever.
+• Tune character size, contrast, edge strokes, glow, shimmer and character speed
+• Save PNGs (up to 4K or your exact screen size), record seamless 5/10/15-second loops, or copy as plain text
+
+Your New Tab page becomes an interactive ASCII wallpaper with a clock:
+• Water: click to drop a stone and watch the ripples spread
+• Butterflies: they flutter away from your cursor
+• Fireflies: they gather around your cursor and flash when you click
+• Rain: run your cursor through it and it flows around like a finger in a stream
+• Starfield: steer with your mouse, click for hyperspace
+• …or any photo or video you make in the studio
+
+Make it yours with the Customise tab: 14 ripple and rain colours (or rainbow), flow strength, umbrella on/off, and a clock with six fonts (including big ASCII digits), 15 colours, sizes, 12/24-hour, seconds, date styles, positions and a liquid-glass panel.
+
+Everything runs on your device using your graphics card. Nothing is uploaded, no data is collected, no account needed.
+
+**What's new in 1.5.0** (paste into "What's new" / version notes):
+• New Customise tab on the New Tab page
+• Rain now flows around your cursor like a finger in a smooth stream, with adjustable strength
+• 14 colours for ripples and rain, 15 for the clock, plus Rainbow for each
+• Clock fonts (Modern, Serif, Mono, Rounded, Typewriter, ASCII digits), weight, size, 12/24-hour, seconds, date style, position and a glass panel
+• Umbrella around the cursor can now be turned off
 
 **Category:** Photos (Chrome) / Photos, Music & Videos (Firefox)
 
