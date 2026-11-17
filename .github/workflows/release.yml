@@ -1,0 +1,85 @@
+# Publishes the extension to the Chrome Web Store and Firefox Add-ons.
+#  - Push a tag like v1.6.0  -> build, check, upload to both stores (each then reviews it),
+#                               and attach the zips to a GitHub Release
+#  - "Run workflow" button   -> dry run: build and check only, nothing is uploaded
+# A store is skipped if its secrets aren't set yet. See PUBLISHING.md.
+name: Publish extension
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      IS_TAG: ${{ startsWith(github.ref, 'refs/tags/') }}
+      HAS_CHROME: ${{ secrets.CWS_REFRESH_TOKEN != '' }}
+      HAS_FIREFOX: ${{ secrets.AMO_JWT_SECRET != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check the tag matches manifest.json
+        run: python3 scripts/check_version.py
+        env:
+          TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+
+      - name: Build the Chrome and Firefox packages
+        run: python3 build.py
+
+      - name: Run Mozilla's add-on checker
+        run: npx --yes web-ext@10.8.0 lint --source-dir build/firefox
+
+      - name: Upload to the Chrome Web Store (then Google reviews it)
+        if: env.IS_TAG == 'true' && env.HAS_CHROME == 'true'
+        run: npx --yes chrome-webstore-upload-cli@4.0.2 --source dist/ascii-studio-chrome-*.zip --max-await-in-progress 600
+        env:
+          EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+          PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+
+      - name: Submit to Firefox Add-ons (then Mozilla reviews it)
+        if: env.IS_TAG == 'true' && env.HAS_FIREFOX == 'true'
+        run: >
+          npx --yes web-ext@10.8.0 sign
+          --source-dir build/firefox
+          --artifacts-dir dist/amo
+          --channel listed
+          --approval-timeout 0
+          --api-key "$AMO_JWT_ISSUER"
+          --api-secret "$AMO_JWT_SECRET"
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+
+      - name: Note any store that was skipped
+        if: env.IS_TAG == 'true' && (env.HAS_CHROME != 'true' || env.HAS_FIREFOX != 'true')
+        run: |
+          [ "$HAS_CHROME" = true ] || echo "::warning::Chrome Web Store skipped: CWS_* secrets not set (see PUBLISHING.md)"
+          [ "$HAS_FIREFOX" = true ] || echo "::warning::Firefox Add-ons skipped: AMO_JWT_* secrets not set (see PUBLISHING.md)"
+
+      - name: Attach the packages to a GitHub Release
+        if: env.IS_TAG == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/ascii-studio-chrome-*.zip
+            dist/ascii-studio-firefox-*.zip
+          generate_release_notes: true
+
+      - name: Keep the packages from a dry run
+        if: env.IS_TAG != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-packages
+          path: dist/*.zip

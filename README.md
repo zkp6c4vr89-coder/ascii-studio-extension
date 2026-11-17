@@ -22,7 +22,10 @@ in `dist/`. Only Python 3 is needed.
 - **Chrome / Brave / Edge:** `chrome://extensions` → Developer mode → Load unpacked → `build/chrome`
 - **Firefox:** `about:debugging#/runtime/this-firefox` → Load Temporary Add-on → `build/firefox/manifest.json`
 
-Publishing steps, listing text and permission justifications are in [STORE.md](STORE.md);
+**Releasing to the stores is automatic:** bump `manifest.json`, tag `vX.Y.Z`, push. See
+[PUBLISHING.md](PUBLISHING.md) for the one-time key setup.
+
+Listing text and permission justifications are in [STORE.md](STORE.md);
 privacy policy in [PRIVACY.md](PRIVACY.md).
 
 ## Layout
