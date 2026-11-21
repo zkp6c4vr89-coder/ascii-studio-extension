@@ -11,7 +11,7 @@ Once the secrets below are set, a release is:
 python3 sync_web.py ../ascii-studio-web   # pick up the latest studio/scenes (if they changed)
 # bump "version" in manifest.json, e.g. 1.5.0 -> 1.6.0
 git commit -am "v1.6.0"
-git tag v1.6.0
+git tag -a v1.6.0 -m v1.6.0     # -a matters: --follow-tags only pushes annotated tags
 git push --follow-tags
 ```
 GitHub Actions (`.github/workflows/release.yml`) then builds both packages, runs Mozilla's checker,
@@ -84,4 +84,5 @@ Open the run under **Actions** and look at the failed step:
 - *Chrome 401 / invalid_grant*: the refresh token expired or was revoked. Check step 3 (In production)
   and redo step 5.
 - *Chrome "item is pending review"*: a previous version is still in review; wait for it, then re-run.
+- *Nothing happened after `git push --follow-tags`*: the tag was made without `-a`, so it was never pushed. Run `git push origin vX.Y.Z`.
 - *Firefox "version already exists"*: that version was already submitted; bump and tag again.
