@@ -65,7 +65,7 @@ jobs:
       - name: Note any store that was skipped
         if: env.IS_TAG == 'true' && (env.HAS_CHROME != 'true' || env.HAS_FIREFOX != 'true')
         run: |
-          [ "$HAS_CHROME" = true ] || echo "::warning::Chrome Web Store skipped: CWS_* secrets not set (see PUBLISHING.md)"
+          [ "$HAS_CHROME" = true ] || echo "::notice::Chrome Web Store is manual: download ascii-studio-chrome-*.zip from this tag's GitHub Release and upload it in the developer dashboard."
           [ "$HAS_FIREFOX" = true ] || echo "::warning::Firefox Add-ons skipped: AMO_JWT_* secrets not set (see PUBLISHING.md)"
 
       - name: Attach the packages to a GitHub Release

@@ -1,4 +1,10 @@
-# Publishing updates to the stores automatically
+# Publishing updates to the stores
+
+**Current setup:** Firefox Add-ons is **automatic**. The Chrome Web Store is **manual**: after each
+tagged release, download `ascii-studio-chrome-X.Y.Z.zip` from the GitHub Release and upload it at
+chrome.google.com/webstore/devconsole → ASCII Studio → **Package → Upload new package**, then
+**Submit for review**. (To automate Chrome later, follow "Chrome Web Store keys" below; Google requires
+the OAuth app to be in production, which may need ownership verification of the homepage.)
 
 Once the secrets below are set, a release is:
 ```bash
