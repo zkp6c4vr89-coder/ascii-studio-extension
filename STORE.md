@@ -41,13 +41,21 @@ Your New Tab page becomes an interactive ASCII wallpaper with a clock:
 • Fireflies: they gather around your cursor and flash when you click
 • Rain: run your cursor through it and it flows around like a finger in a stream
 • Starfield: steer with your mouse, click for hyperspace
+• Christmas: Snowfall that piles up, a turning 3D Christmas tree, a crackling Fireplace and Northern lights
 • …or any photo or video you make in the studio
 
 Make it yours with the Customise tab: 14 ripple and rain colours (or rainbow), flow strength, umbrella on/off, and a clock with six fonts (including big ASCII digits), 15 colours, sizes, 12/24-hour, seconds, date styles, positions and a liquid-glass panel.
 
 Everything runs on your device using your graphics card. Nothing is uploaded, no data is collected, no account needed.
 
-**What's new in 1.5.0** (paste into "What's new" / version notes):
+**What's new in 1.6.0** (paste into "What's new" / version notes):
+• Four Christmas wallpapers: Snowfall, a turning 3D Christmas tree, Fireplace and Northern lights
+• A countdown to Christmas under the clock (December to New Year; you can turn it off)
+• Snow and string lights on any wallpaper during the season
+• In December your new tab turns festive once, with Undo. Your own picture is never replaced
+• …and something hidden, for anyone who looks closely
+
+**What's new in 1.5.0**:
 • New Customise tab on the New Tab page
 • Rain now flows around your cursor like a finger in a smooth stream, with adjustable strength
 • 14 colours for ripples and rain, 15 for the clock, plus Rainbow for each

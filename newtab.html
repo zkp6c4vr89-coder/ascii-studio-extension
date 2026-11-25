@@ -59,6 +59,15 @@
 
     .pane[hidden] { display: none; }
 
+    .toast {
+      position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 8px; max-width: calc(100vw - 32px);
+      font: 500 14px var(--font); letter-spacing: -0.01em; padding: 7px 8px 7px 16px; border-radius: 999px;
+    }
+    .toast[hidden] { display: none; }
+    .toast button { font: 590 13px var(--font); border-radius: 999px; padding: 6px 12px; cursor: pointer; flex: none; }
+    .toast button:hover { background: rgba(255, 255, 255, 0.16); }
+
     @media (prefers-reduced-motion: reduce) { * { transition-duration: 1ms !important; } .clock.rainbow .time { animation: none; } }
     @media (prefers-reduced-transparency: reduce) {
       .glass, .liquid .glass { background: #1c1a26; -webkit-backdrop-filter: none; backdrop-filter: none; }
@@ -78,6 +87,12 @@
   <canvas id="out"></canvas>
   <div class="clock" id="clock"><div class="time" id="time"></div><div class="date" id="date"></div></div>
   <div class="hint glass" id="hint"></div>
+  <div class="snap-line" id="snap-line" aria-live="polite"></div>
+  <div class="toast glass" id="toast" role="status" hidden>
+    <span id="toast-text"></span>
+    <button class="glass" id="toast-undo">Undo</button>
+    <button class="glass" id="toast-keep">Keep it</button>
+  </div>
 
   <section class="sheet glass" id="sheet" aria-label="Wallpapers and settings">
     <header>
@@ -96,8 +111,16 @@
     <div class="pane" data-pane="customise" hidden>
       <h3 class="group-title" id="scene-title">Scene</h3>
       <div class="opts" id="scene-opts"></div>
+      <div id="festive-group" hidden>
+        <h3 class="group-title">Festive</h3>
+        <div class="opts" id="festive-opts"></div>
+      </div>
       <h3 class="group-title">Clock &amp; date</h3>
       <div class="opts" id="clock-opts"></div>
+      <div id="stones-group" hidden>
+        <h3 class="group-title">Stones found</h3>
+        <div class="opts" id="stones-opts"></div>
+      </div>
     </div>
   </section>
 

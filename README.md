@@ -7,6 +7,10 @@ Chrome, Edge, Brave and Firefox extension:
 - **Interactive new-tab wallpapers**: Water (click for ripples), Butterflies (they flee your cursor),
   Fireflies (they gather round it), Rain (your cursor is an umbrella), Starfield (click for hyperspace),
   or any photo or video you make in the studio, with a clock
+- **Christmas scenes**: Snowfall (it piles up; your cursor is warm), a turning 3D Christmas tree,
+  a Fireplace and Northern lights. In December the clock counts down to Christmas, every wallpaper
+  can have snow and string lights, and the new tab switches to Snowfall once (with Undo; your own
+  picture is never replaced)
 - **Customise tab** on the new tab: ripple colour & size, rain colour, umbrella on/off and
   fluid rain that flows around your cursor; clock font (incl. ASCII digits), weight, size,
   colour, 12/24-hour, seconds, date style, position and a liquid-glass panel

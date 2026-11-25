@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-FILES = ("renderer.js", "app.js", "style.css", "wallpaper-store.js", "index.html", "manifest.webmanifest", "scenes.js", "customise.js", "customise.css")
+FILES = ("renderer.js", "app.js", "style.css", "wallpaper-store.js", "index.html", "manifest.webmanifest", "scenes.js", "customise.js", "customise.css", "seasonal.js", "festive.js")
 
 candidates = [Path(sys.argv[1])] if len(sys.argv) > 1 else [HERE.parent / "ascii-studio-web", HERE.parent / "web"]
 src = next((c for c in candidates if (c / "renderer.js").exists()), None)
